@@ -56,15 +56,10 @@ func check(dir string, checkContents bool) error {
 	}
 
 	results := checker.Check(td, dir, checkContents)
-	for _, r1 := range results {
-		for _, r2 := range r1.Results {
-			for _, r3 := range r2.Results {
-				if r3.Status != checker.Same {
-					fmt.Printf("%v %v %v %v\n", r3.Status, r2.Platform, r3.Method, r1.Product.HumanName)
-				}
-			}
+	for _, result := range results {
+		if result.Status != checker.Same {
+			fmt.Printf("%v %v %v %v\n", result.Status, result.Platform, result.Method, result.Product.HumanName)
 		}
-
 	}
 	return nil
 }

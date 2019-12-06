@@ -10,8 +10,12 @@ import (
 )
 
 type CheckResult struct {
-	Product *data.StandardProduct
-	Results []ProductCheckResult
+	Product  *data.StandardProduct
+	Download *data.Download
+	Platform data.Platform
+	Method   data.DownloadMethod
+	Path     string
+	Status   DownloadStatus
 }
 
 type ProductCheckResult struct {
@@ -31,22 +35,28 @@ func Check(data *data.TroveData, dir string, checkContents bool) []CheckResult {
 	for i := range data.Items {
 		item := &data.Items[i]
 		itemDir := path.Join(dir, item.MachineName)
-		result = append(result, checkItem(itemDir, item, checkContents))
+		result = append(result, checkItem(itemDir, item, checkContents)...)
 	}
 	checkCollisions()
 	return result
 }
 
-func checkItem(dir string, item *data.StandardProduct, checkContents bool) CheckResult {
-	var results []ProductCheckResult
+func checkItem(dir string, item *data.StandardProduct, checkContents bool) []CheckResult {
+	var results []CheckResult
 	for platform, download := range item.Downloads {
-		results = append(results, checkDownload(path.Join(dir, string(platform)), download, platform, item.HumanName,
-			checkContents))
+		result := checkDownload(path.Join(dir, string(platform)), download, platform, item.HumanName, checkContents)
+		for _, r1 := range result.Results {
+			results = append(results, CheckResult{
+				Product:  item,
+				Download: download,
+				Platform: platform,
+				Method:   r1.Method,
+				Path:     r1.Path,
+				Status:   r1.Status,
+			})
+		}
 	}
-	return CheckResult{
-		Product: item,
-		Results: results,
-	}
+	return results
 }
 
 func checkDownload(dir string, download *data.Download, platform data.Platform, name string,
