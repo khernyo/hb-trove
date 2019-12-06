@@ -8,15 +8,22 @@ type TroveData struct {
 
 type ProductMachineName string
 type Platform string
+
 type DownloadMethod string
+
+const (
+	Web        DownloadMethod = "web"
+	BitTorrent DownloadMethod = "bittorrent"
+)
+
 type Filename string
 
 type StandardProduct struct {
-	DateAdded      int64                 `json:"date-added"`
-	MachineName    string                `json:"machine_name"`
-	HumbleOriginal bool                  `json:"humble-original"`
-	Downloads      map[Platform]Download `json:"downloads"`
-	HumanName      string                `json:"human-name"`
+	DateAdded      int64                  `json:"date-added"`
+	MachineName    string                 `json:"machine_name"`
+	HumbleOriginal bool                   `json:"humble-original"`
+	Downloads      map[Platform]*Download `json:"downloads"`
+	HumanName      string                 `json:"human-name"`
 }
 
 type Download struct {
@@ -25,7 +32,7 @@ type Download struct {
 	Url         map[DownloadMethod]Filename `json:"url"`
 	Timestamp   int64                       `json:"timestamp"`
 	MachineName string                      `json:"machine_name"`
-	FileSize    uint64                      `json:"file_size"`
+	FileSize    int64                       `json:"file_size"`
 	Small       int                         `json:"small"`
 	Size        string                      `json:"size"`
 	Md5         string                      `json:"md5"`

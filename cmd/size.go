@@ -24,7 +24,7 @@ import (
 )
 
 var sizeCmd = &cobra.Command{
-	Use:   "size",
+	Use: "size",
 	Run: func(cmd *cobra.Command, args []string) {
 		d, err := api.LoadTroveData()
 		if err != nil {
@@ -34,7 +34,7 @@ var sizeCmd = &cobra.Command{
 		var totalSize uint64 = 0
 		for _, item := range d.Items {
 			for _, download := range item.Downloads {
-				totalSize += download.FileSize
+				totalSize += uint64(download.FileSize)
 			}
 		}
 		fmt.Printf("Total size: %v\n", bytefmt.ByteSize(totalSize))

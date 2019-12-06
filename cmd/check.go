@@ -19,33 +19,52 @@ import (
 	"fmt"
 
 	"github.com/spf13/cobra"
+	"hbtrove/pkg/api"
+	"hbtrove/pkg/checker"
 )
 
-// checkCmd represents the check command
 var checkCmd = &cobra.Command{
-	Use:   "check",
-	Short: "A brief description of your command",
-	Long: `A longer description that spans multiple lines and likely contains examples
-and usage of using your command. For example:
-
-Cobra is a CLI library for Go that empowers applications.
-This application is a tool to generate the needed files
-to quickly create a Cobra application.`,
+	Use: "check",
 	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println("check called")
+		if directory == "" {
+			panic("No directory is set")
+		}
+
+		err := check(directory, checkContents)
+		if err != nil {
+			panic(err)
+		}
 	},
 }
+
+var directory string
+var checkContents bool
 
 func init() {
 	rootCmd.AddCommand(checkCmd)
 
-	// Here you will define your flags and configuration settings.
+	checkCmd.Flags().StringVarP(&directory, "directory", "d", "", "")
+	checkCmd.Flags().BoolVarP(&checkContents, "check-contents", "c", false, "")
+}
 
-	// Cobra supports Persistent Flags which will work for this command
-	// and all subcommands, e.g.:
-	// checkCmd.PersistentFlags().String("foo", "", "A help for foo")
+func check(dir string, checkContents bool) error {
+	fmt.Printf("Checking data in dir: %v\n", directory)
 
-	// Cobra supports local flags which will only run when this command
-	// is called directly, e.g.:
-	// checkCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
+	td, err := api.LoadTroveData()
+	if err != nil {
+		return err
+	}
+
+	results := checker.Check(td, dir, checkContents)
+	for _, r1 := range results {
+		for _, r2 := range r1.Results {
+			for _, r3 := range r2.Results {
+				if r3.Status != checker.Same {
+					fmt.Printf("%v %v %v %v\n", r3.Status, r2.Platform, r3.Method, r1.Product.HumanName)
+				}
+			}
+		}
+
+	}
+	return nil
 }

@@ -12,7 +12,7 @@ help:
 
 .PHONY: build
 build: ## Build the project
-	go build ./...
+	go build -o build/ ./...
 
 .PHONY: run
 run: ## Run it
