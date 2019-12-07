@@ -19,33 +19,51 @@ import (
 	"fmt"
 
 	"github.com/spf13/cobra"
+	"hbtrove/pkg/api"
+	"hbtrove/pkg/downloader"
 )
 
-// downloadCmd represents the download command
 var downloadCmd = &cobra.Command{
-	Use:   "download",
-	Short: "A brief description of your command",
-	Long: `A longer description that spans multiple lines and likely contains examples
-and usage of using your command. For example:
-
-Cobra is a CLI library for Go that empowers applications.
-This application is a tool to generate the needed files
-to quickly create a Cobra application.`,
+	Use: "download",
 	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println("download called")
+		if directory == "" {
+			panic("No directory is set")
+		}
+
+		config, err := loadConfig()
+		if err != nil {
+			panic(err)
+		}
+
+		err = download(config, directory, checkContents, dryRun)
+		if err != nil {
+			panic(err)
+		}
 	},
 }
+
+var dryRun bool
 
 func init() {
 	rootCmd.AddCommand(downloadCmd)
 
-	// Here you will define your flags and configuration settings.
+	downloadCmd.Flags().StringVarP(&directory, "directory", "d", "", "")
+	downloadCmd.Flags().BoolVarP(&checkContents, "check-contents", "c", false, "")
+	downloadCmd.Flags().BoolVarP(&dryRun, "dry-run", "n", false, "")
+}
 
-	// Cobra supports Persistent Flags which will work for this command
-	// and all subcommands, e.g.:
-	// downloadCmd.PersistentFlags().String("foo", "", "A help for foo")
+func download(config *downloader.Config, dir string, checkContents bool, dryRun bool) error {
+	fmt.Printf("Downloading into dir: %v\n", directory)
 
-	// Cobra supports local flags which will only run when this command
-	// is called directly, e.g.:
-	// downloadCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
+	td, err := api.LoadTroveData()
+	if err != nil {
+		return err
+	}
+
+	err = downloader.Download(config, td, dir, checkContents, dryRun)
+	return err
+}
+
+func loadConfig() (*downloader.Config, error) {
+	return downloader.NewConfigFromFile("config.toml")
 }
