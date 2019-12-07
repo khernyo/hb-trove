@@ -38,9 +38,9 @@ type Download struct {
 	Md5         string                      `json:"md5"`
 }
 
-func ParseFromHtml(html []byte) (*TroveData, error) {
+func ParseFromJson(s []byte) (*TroveData, error) {
 	var items []StandardProduct
-	err := json.Unmarshal(html, &items)
+	err := json.Unmarshal(s, &items)
 	if err != nil {
 		return nil, err
 	}

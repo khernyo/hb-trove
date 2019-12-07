@@ -38,6 +38,7 @@ func Check(data *data.TroveData, dir string, checkContents bool) []CheckResult {
 		result = append(result, checkItem(itemDir, item, checkContents)...)
 	}
 	checkCollisions()
+	checkUnknown()
 	return result
 }
 
@@ -107,7 +108,11 @@ func checkFile(download *data.Download, method data.DownloadMethod, filePath str
 }
 
 func checkCollisions() {
-	// TODO
+	// TODO Check if paths/filenames collide
+}
+
+func checkUnknown() {
+	// TODO Check if unknown files are present on the filesystem
 }
 
 func computeMd5(filePath string) string {

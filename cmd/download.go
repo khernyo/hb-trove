@@ -55,7 +55,11 @@ func init() {
 func download(config *downloader.Config, dir string, checkContents bool, dryRun bool) error {
 	fmt.Printf("Downloading into dir: %v\n", directory)
 
-	td, err := api.LoadTroveData()
+	jsons, td, err := api.LoadTroveData()
+	if err != nil {
+		return err
+	}
+	err = saveJsons(jsons, dir)
 	if err != nil {
 		return err
 	}

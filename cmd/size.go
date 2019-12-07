@@ -26,7 +26,7 @@ import (
 var sizeCmd = &cobra.Command{
 	Use: "size",
 	Run: func(cmd *cobra.Command, args []string) {
-		d, err := api.LoadTroveData()
+		_, d, err := api.LoadTroveData()
 		if err != nil {
 			panic(err)
 		}

@@ -8,22 +8,22 @@ import (
 	"hbtrove/pkg/data"
 )
 
-func LoadTroveData() (*data.TroveData, error) {
-	var result *data.TroveData = nil
+func LoadTroveData() (jsons [][]byte, td *data.TroveData, err error) {
 	for i := 0; ; i += 1 {
-		chunk, err := LoadTroveDataChunk(i)
+		json, chunk, err := LoadTroveDataChunk(i)
 		if err != nil {
-			return nil, err
+			return nil, nil, err
 		}
 
 		if chunk.IsEmpty() {
 			break
 		} else {
-			result = merge(result, chunk)
+			jsons = append(jsons, json)
+			td = merge(td, chunk)
 		}
 	}
 
-	return result, nil
+	return jsons, td, nil
 }
 
 func merge(d1 *data.TroveData, d2 *data.TroveData) *data.TroveData {
@@ -33,19 +33,20 @@ func merge(d1 *data.TroveData, d2 *data.TroveData) *data.TroveData {
 	return &data.TroveData{Items: append(d1.Items, d2.Items...)}
 }
 
-func LoadTroveDataChunk(idx int) (*data.TroveData, error) {
+func LoadTroveDataChunk(idx int) (json []byte, td *data.TroveData, err error) {
 	println("Getting chunk", idx)
 
 	resp, err := http.Get(fmt.Sprintf("https://www.humblebundle.com/api/v1/trove/chunk?index=%d", idx))
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
 	defer resp.Body.Close()
 
-	body, err := ioutil.ReadAll(resp.Body)
+	json, err = ioutil.ReadAll(resp.Body)
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
 
-	return data.ParseFromHtml(body)
+	td, err = data.ParseFromJson(json)
+	return json, td, err
 }

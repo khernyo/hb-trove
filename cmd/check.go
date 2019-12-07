@@ -16,7 +16,11 @@ limitations under the License.
 package cmd
 
 import (
+	"bytes"
 	"fmt"
+	"io"
+	"os"
+	"path"
 
 	"github.com/spf13/cobra"
 	"hbtrove/pkg/api"
@@ -50,7 +54,11 @@ func init() {
 func check(dir string, checkContents bool) error {
 	fmt.Printf("Checking data in dir: %v\n", directory)
 
-	td, err := api.LoadTroveData()
+	jsons, td, err := api.LoadTroveData()
+	if err != nil {
+		return err
+	}
+	err = saveJsons(jsons, dir)
 	if err != nil {
 		return err
 	}
@@ -70,4 +78,24 @@ func check(dir string, checkContents bool) error {
 		println(status, count)
 	}
 	return nil
+}
+
+func saveJsons(jsons [][]byte, dir string) error {
+	for i, json := range jsons {
+		err := saveJson(dir, i, json)
+		if err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+func saveJson(dir string, i int, json []byte) error {
+	f, err := os.Create(path.Join(dir, fmt.Sprintf("data-chunk-%03d.json", i)))
+	if err != nil {
+		return nil
+	}
+	defer f.Close()
+	_, err = io.Copy(f, bytes.NewReader(json))
+	return err
 }
