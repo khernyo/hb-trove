@@ -55,6 +55,7 @@ func Download(config *Config, td *data.TroveData, dir string, checkContents bool
 			fmt.Println("Done.")
 		}
 	}
+	println("All done.")
 	return nil
 }
 

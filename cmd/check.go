@@ -56,10 +56,18 @@ func check(dir string, checkContents bool) error {
 	}
 
 	results := checker.Check(td, dir, checkContents)
+	summary := map[checker.DownloadStatus]int{}
 	for _, result := range results {
 		if result.Status != checker.Same {
 			fmt.Printf("%v %v %v %v\n", result.Status, result.Platform, result.Method, result.Product.HumanName)
 		}
+		summary[result.Status] += 1
+	}
+
+	println()
+	println("Summary:")
+	for status, count := range summary {
+		println(status, count)
 	}
 	return nil
 }
